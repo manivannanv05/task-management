@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import Registration from "./Components/register";
 import Dashboard from "./Components/dashboard";
 import Login from "./Components/login";
+import ProtectedRoute from "./Components/protectedRoute";
 
 const router = createBrowserRouter([
     {
@@ -19,7 +20,9 @@ const router = createBrowserRouter([
     },
     {
         path: '/dashboard',
-        element: <Dashboard />
+        element: (<ProtectedRoute>
+            <Dashboard />
+        </ProtectedRoute>)
 
     }
 ])
@@ -28,7 +31,7 @@ const router = createBrowserRouter([
 const AppLayout = () => {
     return (
         <div className="app">
-            <RouterProvider router ={router}/>
+            <RouterProvider router={router} />
         </div>
     )
 }

@@ -1,12 +1,28 @@
 import { useNavigate, Link } from "react-router";
 import { useForm } from "react-hook-form";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import api from '../utilities/intercepter';
 
 const Login = () => {
     const { register, handleSubmit, formState: { errors, isValid } } = useForm({});
     const navigate = useNavigate();
-    const onSubmit = (data) => {
-        console.log("successfully logged in", data);
-        navigate('/dashboard')
+    const onSubmit = async (data) => {
+        try {
+            localStorage.clear();
+            const response = await api.post('auth/login', data);
+            if (response.status === 200) {
+                const { accessToken, refreshToken } = response.data;
+                localStorage.setItem('accessToken', accessToken);
+                localStorage.setItem('refreshToken', refreshToken);
+                navigate('/dashboard')
+            } else {
+                toast.error('login error')
+            }
+        } catch (error) {
+            toast.error('login error')
+        }
+
     }
     return (
         <div>
@@ -14,9 +30,9 @@ const Login = () => {
 
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div>
-                    <label htmlFor="mail"> Email:</label>
-                    <input type="email" id="mail" {...register("mail", { required: 'email is required' })}></input>
-                    <span>{errors.mail && errors.mail.message}</span>
+                    <label htmlFor="email"> Email:</label>
+                    <input type="email" id="email" {...register("email", { required: 'email is required' })}></input>
+                    <span>{errors.email && errors.email.message}</span>
                 </div>
                 <div>
                     <label htmlFor="password"> Password:</label>
@@ -33,6 +49,7 @@ const Login = () => {
                     <button> register </button>
                 </Link>
             </div>
+            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} />
         </div>
     )
 };

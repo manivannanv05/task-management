@@ -1,7 +1,10 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import api from '../utilities/intercepter';
 const Registration = () => {
-    const navigate =  useNavigate();
+    const navigate = useNavigate();
     const { register, handleSubmit, formState: { errors, isValid }, watch } = useForm({
         defaultValues: {
             firstname: '',
@@ -14,9 +17,33 @@ const Registration = () => {
 
     });
     const password = watch('password');
-    const onSubmit = (data) => {
-        console.log("successfully submitted", data);
-        navigate('/dashboard');
+    const onSubmit = async (data) => {
+        try {
+            console.log(data);
+            const payload = {
+                email: data.mail,
+                name: data.firstname + ' ' + data.lastname,
+                password: data.password
+            }
+            const response = await api.post('auth/register', payload);
+            if (response.status === 201) {
+                toast.success('user created successfully', {
+                    autoClose: 100,
+                    onClose: () => {
+                        const { accessToken, refreshToken } = response.data;
+                        localStorage.setItem('accessToken', accessToken);
+                        localStorage.setItem('refreshToken', refreshToken);
+                        navigate('/dashboard');
+                    }
+                })
+            } else {
+                toast.error('error while  creating the user')
+            }
+        } catch (error) {
+            toast.error('error while  creating the user')
+            console.log("API response ", error)
+        }
+
     }
     return (
         <div className='registeration'>
@@ -48,16 +75,16 @@ const Registration = () => {
                     <span> {errors.confirmPassword && <p>{errors.confirmPassword.message}</p>}</span>
                 </div>
                 <div>
-                  
-                        <button type="submit" disabled={!isValid}>
-                            Submit
-                        </button>
+
+                    <button type="submit" disabled={!isValid}>
+                        Submit
+                    </button>
 
 
                 </div>
 
             </form>
-
+            <ToastContainer position="top-right" autoClose={5000} hideProgressBar={false} />
         </div>)
 
 }

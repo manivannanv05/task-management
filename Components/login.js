@@ -3,10 +3,12 @@ import { useForm } from "react-hook-form";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import api from '../utilities/intercepter';
+import { UserRoles } from "./UserRoleContext";
 
 const Login = () => {
     const { register, handleSubmit, formState: { errors, isValid } } = useForm({});
     const navigate = useNavigate();
+    const { setRole } = UserRoles();
     const onSubmit = async (data) => {
         try {
             localStorage.clear();
@@ -15,11 +17,13 @@ const Login = () => {
                 const { accessToken, refreshToken } = response.data;
                 localStorage.setItem('accessToken', accessToken);
                 localStorage.setItem('refreshToken', refreshToken);
-                navigate('/dashboard')
+                setRole('admin');
+                navigate('/admin')
             } else {
                 toast.error('login error')
             }
         } catch (error) {
+            console.log(error)
             toast.error('login error')
         }
 

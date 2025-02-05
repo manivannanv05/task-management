@@ -7,6 +7,9 @@ import Registration from "./Components/register";
 import Dashboard from "./Components/dashboard";
 import Login from "./Components/login";
 import ProtectedRoute from "./Components/protectedRoute";
+import AdminComponent from "./Components/admin";
+import { RolesProvider } from "./Components/UserRoleContext";
+import NoAccess from "./Components/Forbiden";
 
 const router = createBrowserRouter([
     {
@@ -20,8 +23,22 @@ const router = createBrowserRouter([
     },
     {
         path: '/dashboard',
-        element: (<ProtectedRoute>
+        element: (<ProtectedRoute allowedRoles={['admin', 'user']}>
             <Dashboard />
+        </ProtectedRoute>)
+
+    },
+    {
+        path: '/admin',
+        element: (<ProtectedRoute allowedRoles={['admin']}>
+            <AdminComponent />
+        </ProtectedRoute>)
+
+    },
+    {
+        path: '/noaccess',
+        element: (<ProtectedRoute allowedRoles={['admin', 'user', 'guest']}>
+            <NoAccess />
         </ProtectedRoute>)
 
     }
@@ -30,9 +47,11 @@ const router = createBrowserRouter([
 
 const AppLayout = () => {
     return (
-        <div className="app">
-            <RouterProvider router={router} />
-        </div>
+        <RolesProvider>
+            <div className="app">
+                <RouterProvider router={router} />
+            </div>
+        </RolesProvider>
     )
 }
 const root = ReactDOM.createRoot(document.getElementById("root"));
